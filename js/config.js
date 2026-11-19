@@ -12,6 +12,6 @@
  * NEVER paste the "service_role" key here.
  */
 window.LOOPLY_CONFIG = {
-  SUPABASE_URL: "https://YOUR-PROJECT-ID.supabase.co",
-  SUPABASE_ANON_KEY: "YOUR-ANON-PUBLIC-KEY"
+  SUPABASE_URL: "https://rtpnmkdpsgpiscdajcve.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_f1kRuO0a_Fw6jRZm52sTnQ_UfcDn40A"
 };
