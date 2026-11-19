@@ -60,20 +60,76 @@
     $("#tab-signup").classList.toggle("active", mode === "signup");
     $("#signup-only").classList.toggle("hidden", mode !== "signup");
     $("#auth-submit").textContent = mode === "signup" ? "Create account" : "Log in";
+    $("#forgot-password").classList.toggle("hidden", mode !== "login");
   }
 
   function showAuth() {
     $("#auth-view").classList.remove("hidden");
+    $("#reset-view").classList.add("hidden");
+    $("#app-view").classList.add("hidden");
+  }
+
+  function showReset() {
+    $("#auth-view").classList.add("hidden");
+    $("#reset-view").classList.remove("hidden");
     $("#app-view").classList.add("hidden");
   }
 
   function showApp() {
     $("#auth-view").classList.add("hidden");
+    $("#reset-view").classList.add("hidden");
     $("#app-view").classList.remove("hidden");
   }
 
   $("#tab-login").addEventListener("click", () => setAuthMode("login"));
   $("#tab-signup").addEventListener("click", () => setAuthMode("signup"));
+
+  // Password reset: send a secure Supabase recovery email to the entered address.
+  $("#forgot-password").addEventListener("click", async () => {
+    const email = $("#auth-form").elements.email.value.trim();
+    const msg = $("#auth-msg");
+    if (!email) return setMsg(msg, "Enter your email address first, then tap Forgot password?", "err");
+    const btn = $("#forgot-password");
+    btn.disabled = true;
+    setMsg(msg, "Sending password-reset email…");
+    try {
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) throw error;
+      setMsg(msg, "If an account exists for this email, a password-reset link has been sent. Check your inbox and spam folder.", "ok");
+    } catch (err) {
+      setMsg(msg, friendly(err), "err");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // The recovery link returns here; Supabase signals PASSWORD_RECOVERY.
+  $("#reset-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const msg = $("#reset-msg");
+    const password = f.new_password.value;
+    const confirm = f.confirm_password.value;
+    if (password.length < 8) return setMsg(msg, "Use at least 8 characters for your new password.", "err");
+    if (password !== confirm) return setMsg(msg, "The passwords do not match.", "err");
+    const btn = f.querySelector("button[type='submit']");
+    btn.disabled = true;
+    setMsg(msg, "Updating your password…");
+    try {
+      const { error } = await sb.auth.updateUser({ password });
+      if (error) throw error;
+      await sb.auth.signOut();
+      showAuth();
+      setAuthMode("login");
+      setMsg($("#auth-msg"), "Password updated successfully. You can now log in with your new password.", "ok");
+      f.reset();
+    } catch (err) {
+      setMsg(msg, friendly(err), "err");
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   $("#auth-form").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -445,7 +501,11 @@
 
     setAuthMode("login");
 
-    sb.auth.onAuthStateChange((_event, session) => {
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        showReset();
+        return;
+      }
       // Defer to avoid calling Supabase from inside its own auth callback.
       setTimeout(async () => {
         if (session?.user) {
