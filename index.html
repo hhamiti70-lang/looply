@@ -12,8 +12,6 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-  <!-- Shown when config.js has not been filled in yet -->
   <section id="config-missing" class="hidden">
     <div class="card">
       <h2>One setup step left</h2>
@@ -21,17 +19,14 @@
     </div>
   </section>
 
-  <!-- AUTH SCREEN -->
   <section id="auth-view">
     <div class="auth-card">
       <div class="brand-xl">LOOPLY</div>
       <p class="tagline">CONNECT • DISCOVER • GROW</p>
-
       <div class="auth-tabs">
         <button id="tab-login" class="tab active" type="button">Log in</button>
         <button id="tab-signup" class="tab" type="button">Sign up</button>
       </div>
-
       <form id="auth-form" novalidate>
         <div id="signup-only" class="hidden">
           <label>Username
@@ -48,20 +43,35 @@
           <input name="password" type="password" minlength="8" autocomplete="current-password" required>
         </label>
         <button id="auth-submit" class="btn primary block" type="submit">Log in</button>
+        <button id="forgot-password" class="btn ghost block" type="button">Forgot password?</button>
         <p id="auth-msg" class="msg" role="alert"></p>
       </form>
     </div>
   </section>
 
-  <!-- APP SHELL -->
+  <section id="reset-view" class="hidden">
+    <div class="auth-card">
+      <div class="brand-xl">LOOPLY</div>
+      <p class="tagline">CREATE A NEW PASSWORD</p>
+      <form id="reset-form" novalidate>
+        <label>New password
+          <input name="new_password" type="password" minlength="8" autocomplete="new-password" required>
+        </label>
+        <label>Confirm new password
+          <input name="confirm_password" type="password" minlength="8" autocomplete="new-password" required>
+        </label>
+        <button class="btn primary block" type="submit">Save new password</button>
+        <p id="reset-msg" class="msg" role="alert"></p>
+      </form>
+    </div>
+  </section>
+
   <section id="app-view" class="hidden">
     <header class="topbar">
       <div class="brand">LOOPLY</div>
       <button id="logout-btn" class="btn ghost small" type="button">Log out</button>
     </header>
-
     <main id="main"></main>
-
     <nav class="bottomnav" aria-label="Main">
       <a href="#feed" data-route="feed">Feed</a>
       <a href="#discover" data-route="discover">Discover</a>
